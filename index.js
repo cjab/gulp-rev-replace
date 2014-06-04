@@ -19,11 +19,15 @@ function escapeRegExp(string){
   return string.replace(/([.*+?^=!:${}()|\[\]\/\\])/g, "\\$1");
 }
 
-var plugin = function() {
-  var renames = {};
-  var cache = [];
+var plugin = function(options) {
+  var renames = {},
+      cache   = [];
+
+  options        = options || {};
+  options.prefix = options.prefix || '';
 
   return through.obj(function(file, enc, cb) {
+
     if (file.isNull()) {
       this.push(file);
       return cb();
@@ -47,20 +51,24 @@ var plugin = function() {
     }
 
     cb();
+
   }, function(cb) {
     // Once we have a full list of renames, search/replace in the cached
     // files and push them through.
-    var file;
-    var contents;
+    var file,
+        contents;
+
     for (var i = 0, ii = cache.length; i !== ii; i++) {
-      file = cache[i];
+      file     = cache[i];
       contents = file.contents.toString();
+
       for (var rename in renames) {
         if (renames.hasOwnProperty(rename)) {
           var search = new RegExp(escapeRegExp(rename), 'g');
-          contents   = contents.replace(search, renames[rename]);
+          contents   = contents.replace(search, options.prefix + renames[rename]);
         }
       }
+
       file.contents = new Buffer(contents);
       this.push(file);
     }
