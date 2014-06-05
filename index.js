@@ -64,7 +64,7 @@ var plugin = function(options) {
 
       for (var rename in renames) {
         if (renames.hasOwnProperty(rename)) {
-          var search = new RegExp(escapeRegExp(rename), 'g');
+          var search = new RegExp('(\/)?' + escapeRegExp(rename), 'g');
           contents   = contents.replace(search, options.prefix + renames[rename]);
         }
       }
